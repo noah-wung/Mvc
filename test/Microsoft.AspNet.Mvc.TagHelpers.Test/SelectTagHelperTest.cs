@@ -276,7 +276,6 @@ namespace Microsoft.AspNet.Mvc.TagHelpers
                 SelfClosing = true,
             };
 
-            var items = new SelectList(new[] { "", "outer text", "inner text", "other text" });
             var htmlGenerator = new TestableHtmlGenerator(metadataProvider)
             {
                 ValidationAttributes =
@@ -285,6 +284,12 @@ namespace Microsoft.AspNet.Mvc.TagHelpers
                 }
             };
             var viewContext = TestableHtmlGenerator.GetViewContext(model, htmlGenerator, metadataProvider);
+
+            var items = new SelectList(new[] { "", "outer text", "inner text", "other text" });
+            var savedDisabled = items.ToDictionary(item => item.Text, item => item.Disabled);
+            var savedGroup = items.ToDictionary(item => item.Text, item => item.Group);
+            var savedSelected = items.ToDictionary(item => item.Text, item => item.Selected);
+            var savedValue = items.ToDictionary(item => item.Text, item => item.Value);
             var tagHelper = new SelectTagHelper
             {
                 For = modelExpression,
@@ -311,6 +316,11 @@ namespace Microsoft.AspNet.Mvc.TagHelpers
             Assert.NotNull(keyValuePair.Value);
             var selectedValues = Assert.IsAssignableFrom<ICollection<string>>(keyValuePair.Value);
             Assert.InRange(selectedValues.Count, 0, 1);
+
+            Assert.Equal(savedDisabled, items.ToDictionary(item => item.Text, item => item.Disabled));
+            Assert.Equal(savedGroup, items.ToDictionary(item => item.Text, item => item.Group));
+            Assert.Equal(savedSelected, items.ToDictionary(item => item.Text, item => item.Selected));
+            Assert.Equal(savedValue, items.ToDictionary(item => item.Text, item => item.Value));
         }
 
         [Theory]
